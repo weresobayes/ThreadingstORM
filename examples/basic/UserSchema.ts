@@ -1,8 +1,9 @@
+import { MapField } from '../../src/decorators/MapField';
 import { MapTable } from '../../src/decorators/MapTable';
 import { Schema, ThreadingstORMSchematic } from '../../src/decorators/Schema';
-import { User, Intelligent } from './User';
+import { User } from './User';
 
-namespace UserMapping {
+namespace UserPersistent {
     @Schema({
         entity: User,
         context: 'users',
@@ -12,18 +13,19 @@ namespace UserMapping {
 
     @MapTable('users', { schema: UserSchema })
     export class Root {
-        @MapField({
-            transformSelect: (results: UserSchema.selectResult[]) => {
-                // if statements here
-                return 'active';
-            }
+        @MapField<User>({
+            mapTo: 'email',
         })
-        status: string;
+        email: string;
     }
 
-    @MapTable('user_profiles', { schema: UserSchema, isRoot: false, joinOn: { localField: 'user_id', foreignField: 'id', from: 'users' } })
+    @MapTable('user_profiles', {
+        schema: UserSchema,
+        isRoot: false,
+        joinOn: { localField: 'user_id', foreignField: 'id', from: 'users' }
+    })
     export class Profile {}
 }
 
-export const UserSchema = UserMapping.UserSchema;
+export const UserSchema = UserPersistent.UserSchema;
 
